@@ -1,4 +1,4 @@
-import { ApiResponse, User, Article, CreateUserRequest, CreateArticleRequest, UpdateUserRequest, UpdateArticleRequest, SearchRequest, SearchResponse } from '@shared/types';
+import { ApiResponse, User, Product, Category, CreateUserRequest, CreateProductRequest, UpdateUserRequest, UpdateProductRequest, SearchRequest, SearchResponse } from '@shared/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
@@ -74,54 +74,69 @@ class ApiClient {
     });
   }
 
-  // Articles
-  async getArticles(page = 1, limit = 10, published?: boolean) {
+  // Categories
+  async getCategories() {
+    return this.request<Category[]>('/api/categories');
+  }
+
+  // Products
+  async getProducts(page = 1, limit = 10, category?: string) {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
     
-    if (published !== undefined) {
-      params.append('published', published.toString());
+    if (category) {
+      params.append('category', category);
     }
 
-    return this.request<{ articles: Article[]; total: number; page: number; limit: number }>(
-      `/api/articles?${params}`
+    return this.request<{ products: Product[]; total: number; page: number; limit: number }>(
+      `/api/products?${params}`
     );
   }
 
-  async getArticleById(id: string) {
-    return this.request<Article>(`/api/articles/${id}`);
+  async getProductById(id: number) {
+    return this.request<Product>(`/api/products/${id}`);
   }
 
-  async getArticlesByAuthor(authorId: string, page = 1, limit = 10) {
-    return this.request<{ articles: Article[]; authorId: string; page: number; limit: number }>(
-      `/api/articles/author/${authorId}?page=${page}&limit=${limit}`
+  async searchProducts(query: string, category?: string, page = 1, limit = 10) {
+    const params = new URLSearchParams({
+      query,
+      limit: limit.toString(),
+      offset: ((page - 1) * limit).toString(),
+    });
+    
+    if (category) {
+      params.append('category', category);
+    }
+
+    return this.request<{ products: Product[]; total: number; query: string; limit: number; offset: number }>(
+      `/api/products?${params}`
     );
   }
 
-  async createArticle(data: CreateArticleRequest & { authorId: string }) {
-    return this.request<Article>('/api/articles', {
+  async createProduct(data: CreateProductRequest) {
+    return this.request<Product>('/api/products', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateArticle(id: string, data: UpdateArticleRequest) {
-    return this.request<Article>(`/api/articles/${id}`, {
+  async updateProduct(id: number, data: UpdateProductRequest) {
+    return this.request<Product>(`/api/products/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
-  async deleteArticle(id: string) {
-    return this.request<void>(`/api/articles/${id}`, {
+  async deleteProduct(id: number) {
+    return this.request<void>(`/api/products/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Search
-  async search(query: string, type?: 'users' | 'articles', limit = 10, offset = 0) {
+  async search(query: string, type?: 'users' | 'products', limit = 10, offset = 0) {
     const params = new URLSearchParams({
       q: query,
       limit: limit.toString(),
@@ -132,7 +147,7 @@ class ApiClient {
       params.append('type', type);
     }
 
-    return this.request<SearchResponse<User | Article> | { users: SearchResponse<User>; articles: SearchResponse<Article>; query: string; limit: number; offset: number }>(
+    return this.request<SearchResponse<User | Product> | { users: SearchResponse<User>; products: SearchResponse<Product>; query: string; limit: number; offset: number }>(
       `/api/search?${params}`
     );
   }

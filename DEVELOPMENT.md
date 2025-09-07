@@ -24,14 +24,14 @@ npm install  # Installs all dependencies for monorepo
 
 ```bash
 # Start only MySQL and Elasticsearch in Docker
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 ```
 
 The `-d` flag runs them in detached mode (background).
 
 **Verify services are running:**
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 You should see:
@@ -100,7 +100,7 @@ npm run dev  # Watches for type changes
 ### Starting Work
 ```bash
 # 1. Start database services (if not running)
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 
 # 2. Start backend
 cd apps/backend && npm run dev
@@ -119,10 +119,10 @@ cd apps/frontend && npm run dev
 # Stop local services: Ctrl+C in each terminal
 
 # Stop Docker services
-docker-compose down
+docker compose down
 
 # Or keep DB running for next session
-docker-compose stop
+docker compose stop
 ```
 
 ## 🧪 Testing Locally
@@ -162,13 +162,13 @@ npm run db:generate
 ### Database Connection Issues
 ```bash
 # Check if MySQL is running
-docker-compose ps db
+docker compose ps db
 
 # Restart database
-docker-compose restart db
+docker compose restart db
 
 # Check logs
-docker-compose logs db
+docker compose logs db
 ```
 
 ### Port Conflicts
@@ -190,14 +190,14 @@ PORT=3002
 ### Clean Start
 ```bash
 # Stop everything
-docker-compose down -v  # -v removes volumes
+docker compose down -v  # -v removes volumes
 
 # Clean install
 rm -rf node_modules package-lock.json
 npm install
 
 # Restart database and regenerate
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 cd apps/backend
 npm run db:generate
 npm run db:migrate
@@ -226,14 +226,14 @@ npm run db:seed
 ### From Local to Full Docker
 ```bash
 # Stop local services (Ctrl+C)
-docker-compose down
-docker-compose up --build
+docker compose down
+docker compose up --build
 ```
 
 ### From Docker to Local
 ```bash
-docker-compose down
-docker-compose up db elasticsearch -d
+docker compose down
+docker compose up db elasticsearch -d
 # Then start services locally as above
 ```
 

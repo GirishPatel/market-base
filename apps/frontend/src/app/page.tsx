@@ -6,12 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
-import { User, Article } from '@shared/types';
-import { Search, Users, FileText, Database, Heart } from 'lucide-react';
+import { User, Product, Category } from '@shared/types';
+import { Search, Users, Package, Database, Heart } from 'lucide-react';
 
 export default function HomePage() {
   const [users, setUsers] = useState<User[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -25,13 +26,15 @@ export default function HomePage() {
 
   const loadInitialData = async () => {
     try {
-      const [usersResponse, articlesResponse] = await Promise.all([
+      const [usersResponse, productsResponse, categoriesResponse] = await Promise.all([
         apiClient.getUsers(1, 5),
-        apiClient.getArticles(1, 5, true),
+        apiClient.getProducts(1, 5),
+        apiClient.getCategories(),
       ]);
 
       setUsers(usersResponse.data?.users || []);
-      setArticles(articlesResponse.data?.articles || []);
+      setProducts(productsResponse.data?.products || []);
+      setCategories(categoriesResponse.data || []);
     } catch (error) {
       toast({
         title: 'Error',
@@ -123,16 +126,16 @@ export default function HomePage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            Search Users & Articles
+            Search Users & Products
           </CardTitle>
           <CardDescription>
-            Search across users and articles using Elasticsearch (with database fallback)
+            Search across users and products using Elasticsearch (with database fallback)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
             <Input
-              placeholder="Search for users or articles..."
+              placeholder="Search for users or products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -156,13 +159,13 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
-              {searchResults.articles && (
+              {searchResults.products && (
                 <div>
-                  <h4 className="font-medium text-gray-700">Articles ({searchResults.articles.total})</h4>
-                  {searchResults.articles.data.map((article: Article) => (
-                    <div key={article.id} className="p-2 border rounded mt-1">
-                      <div className="font-medium">{article.title}</div>
-                      <div className="text-sm text-gray-600">{article.summary}</div>
+                  <h4 className="font-medium text-gray-700">Products ({searchResults.products.total})</h4>
+                  {searchResults.products.data.map((product: Product) => (
+                    <div key={product.id} className="p-2 border rounded mt-1">
+                      <div className="font-medium">{product.title}</div>
+                      <div className="text-sm text-gray-600">${product.price} - {product.description.slice(0, 100)}...</div>
                     </div>
                   ))}
                 </div>
@@ -199,24 +202,24 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        {/* Articles */}
+        {/* Products */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Published Articles
+              <Package className="h-5 w-5" />
+              Featured Products
             </CardTitle>
-            <CardDescription>Latest published articles</CardDescription>
+            <CardDescription>Latest products in our catalog</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {articles.map((article) => (
-                <div key={article.id} className="p-3 border rounded-lg">
-                  <div className="font-medium mb-1">{article.title}</div>
-                  <div className="text-sm text-gray-600 mb-2">{article.summary}</div>
+              {products.map((product) => (
+                <div key={product.id} className="p-3 border rounded-lg">
+                  <div className="font-medium mb-1">{product.title}</div>
+                  <div className="text-sm text-gray-600 mb-2">${product.price} - {product.description.slice(0, 100)}...</div>
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>By: {article.author?.name}</span>
-                    <span>{new Date(article.createdAt).toLocaleDateString()}</span>
+                    <span>Stock: {product.stock}</span>
+                    <span>Rating: {product.rating}/5</span>
                   </div>
                 </div>
               ))}
@@ -258,7 +261,7 @@ export default function HomePage() {
               All services are containerized and can be started with a single command:
             </p>
             <code className="bg-gray-100 px-4 py-2 rounded text-sm">
-              docker-compose up
+              docker compose up
             </code>
           </div>
         </CardContent>

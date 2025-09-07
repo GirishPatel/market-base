@@ -11,26 +11,108 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   email     String   @unique
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  articles  Article[]
+  reviews   Review[]
 
   @@map("users")
 }
 
-model Article {
-  id        String   @id @default(uuid())
-  title     String
-  content   String
-  summary   String?
-  published Boolean  @default(false)
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Brand {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@map("brands")
+}
+
+model Tag {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  productTags ProductTag[]
+
+  @@map("tags")
+}
+
+model Product {
+  id                    Int          @id @default(autoincrement())
+  categoryId            Int
+  brandId               Int
+  sku                   String       @unique
+  title                 String
+  description           String       @db.Text
+  price                 Float
+  discountPercentage    Float        @default(0)
+  rating                Float        @default(0)
+  stock                 Int
+  minimumOrderQuantity  Int          @default(1)
+  weight                Float?
+  dimensions            Json?
+  warrantyInformation   String?
+  shippingInformation   String?
+  availabilityStatus    String       @default("In Stock")
+  returnPolicy          String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  barcode               String?
+  qrCode                String?
+  images                Json?
+  thumbnail             String?
+  
+  category              Category     @relation(fields: [categoryId], references: [id])
+  brand                 Brand        @relation(fields: [brandId], references: [id])
+  reviews               Review[]
+  productTags           ProductTag[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@map("products")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  rating     Float
+  comment    String   @db.Text
+  date       DateTime @default(now())
+  reviewerId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  product  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  reviewer User    @relation(fields: [reviewerId], references: [id])
+
+  @@index([productId])
+  @@index([reviewerId])
+  @@map("reviews")
+}
+
+model ProductTag {
+  productId Int
+  tagId     Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id])
 
-  @@map("articles")
+  @@id([productId, tagId])
+  @@map("product_tags")
 }

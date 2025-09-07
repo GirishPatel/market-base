@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Fullstack Monorepo API',
+      title: 'E-commerce API',
       version: '1.0.0',
-      description: 'A sample API for demonstrating the monorepo setup',
+      description: 'E-commerce platform API with products, categories, and search functionality',
     },
     servers: [
       {
@@ -19,23 +19,68 @@ const options = {
         User: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'uuid' },
+            id: { type: 'integer' },
             email: { type: 'string', format: 'email' },
             name: { type: 'string' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
           },
         },
-        Article: {
+        Category: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'uuid' },
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+        },
+        Brand: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+        },
+        Tag: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+          },
+        },
+        Product: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            categoryId: { type: 'integer' },
+            brandId: { type: 'integer' },
+            sku: { type: 'string' },
             title: { type: 'string' },
-            content: { type: 'string' },
-            summary: { type: 'string' },
-            published: { type: 'boolean' },
-            authorId: { type: 'string', format: 'uuid' },
-            author: { $ref: '#/components/schemas/User' },
+            description: { type: 'string' },
+            price: { type: 'number' },
+            discountPercentage: { type: 'number' },
+            rating: { type: 'number' },
+            stock: { type: 'integer' },
+            minimumOrderQuantity: { type: 'integer' },
+            weight: { type: 'number' },
+            dimensions: {
+              type: 'object',
+              properties: {
+                width: { type: 'number' },
+                height: { type: 'number' },
+                depth: { type: 'number' },
+              },
+            },
+            warrantyInformation: { type: 'string' },
+            shippingInformation: { type: 'string' },
+            availabilityStatus: { type: 'string' },
+            returnPolicy: { type: 'string' },
+            barcode: { type: 'string' },
+            qrCode: { type: 'string' },
+            images: { type: 'array', items: { type: 'string' } },
+            thumbnail: { type: 'string' },
+            category: { $ref: '#/components/schemas/Category' },
+            brand: { $ref: '#/components/schemas/Brand' },
+            tags: { type: 'array', items: { type: 'string' } },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
           },
@@ -48,14 +93,37 @@ const options = {
             name: { type: 'string' },
           },
         },
-        CreateArticleRequest: {
+        CreateProductRequest: {
           type: 'object',
-          required: ['title', 'content'],
+          required: ['categoryId', 'brandId', 'sku', 'title', 'description', 'price', 'stock'],
           properties: {
+            categoryId: { type: 'integer' },
+            brandId: { type: 'integer' },
+            sku: { type: 'string' },
             title: { type: 'string' },
-            content: { type: 'string' },
-            summary: { type: 'string' },
-            published: { type: 'boolean', default: false },
+            description: { type: 'string' },
+            price: { type: 'number' },
+            discountPercentage: { type: 'number' },
+            stock: { type: 'integer' },
+            minimumOrderQuantity: { type: 'integer' },
+            weight: { type: 'number' },
+            dimensions: {
+              type: 'object',
+              properties: {
+                width: { type: 'number' },
+                height: { type: 'number' },
+                depth: { type: 'number' },
+              },
+            },
+            warrantyInformation: { type: 'string' },
+            shippingInformation: { type: 'string' },
+            availabilityStatus: { type: 'string' },
+            returnPolicy: { type: 'string' },
+            barcode: { type: 'string' },
+            qrCode: { type: 'string' },
+            images: { type: 'array', items: { type: 'string' } },
+            thumbnail: { type: 'string' },
+            tags: { type: 'array', items: { type: 'string' } },
           },
         },
         ApiResponse: {

@@ -1,6 +1,7 @@
 export const API_ROUTES = {
   USERS: '/api/users',
-  ARTICLES: '/api/articles',
+  PRODUCTS: '/api/products',
+  CATEGORIES: '/api/categories',
   SEARCH: '/api/search',
   HEALTH: '/api/health',
 } as const;
@@ -24,5 +25,5 @@ export const DEFAULT_PAGINATION = {
 
 export const ELASTICSEARCH_INDICES = {
   USERS: 'users',
-  ARTICLES: 'articles',
+  PRODUCTS: 'products',
 } as const;

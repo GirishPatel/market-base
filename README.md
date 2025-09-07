@@ -8,7 +8,7 @@ A production-ready fullstack application built with modern technologies and best
 Get the entire application running with one command:
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 This **automatically builds and runs** all services. Then visit:
@@ -21,7 +21,7 @@ For faster development with hot reload:
 
 ```bash
 # 1. Start only database services in Docker
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 
 # 2. Run services locally (see DEVELOPMENT.md for full guide)
 yarn install
@@ -47,7 +47,7 @@ fullstack-monorepo/
 │   └── backend/           # Express.js + TypeScript + Prisma
 ├── packages/
 │   └── shared/            # Shared types and utilities
-├── docker-compose.yml     # Full stack orchestration
+├── docker compose.yml     # Full stack orchestration
 └── package.json           # Workspace configuration
 ```
 
@@ -86,7 +86,7 @@ Update environment variable in .env file.local
 
 Start only the database services:
 ```bash
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 ```
 
 Run database migrations and seed:
@@ -166,12 +166,12 @@ yarn run test:watch    # Run tests in watch mode
 
 ### Docker Build Behavior
 
-**`docker-compose up`:**
+**`docker compose up`:**
 - ✅ **Automatically builds** images if they don't exist
 - ✅ **Uses cached images** if no changes detected
 - ✅ **Starts all services** (MySQL, Elasticsearch, Backend, Frontend)
 
-**`docker-compose up --build`:**
+**`docker compose up --build`:**
 - ✅ **Forces rebuild** of all images
 - ✅ **Use this after code changes** for guaranteed fresh build
 
@@ -179,34 +179,34 @@ yarn run test:watch    # Run tests in watch mode
 
 ```bash
 # Full stack (builds + runs everything)
-docker-compose up
+docker compose up
 
 # Force rebuild after code changes
-docker-compose up --build
+docker compose up --build
 
 # Database services only (for local development)
-docker-compose up db elasticsearch -d
+docker compose up db elasticsearch -d
 
 # Individual services
-docker-compose up db                              # MySQL only
-docker-compose up db elasticsearch               # DB + Search
-docker-compose up db elasticsearch backend       # All except frontend
+docker compose up db                              # MySQL only
+docker compose up db elasticsearch               # DB + Search
+docker compose up db elasticsearch backend       # All except frontend
 ```
 
 ### Docker Management
 
 ```bash
 # Stop all services
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (fresh start)
-docker-compose down -v
+docker compose down -v
 
 # View running services
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ## 🔍 API Documentation
@@ -228,17 +228,21 @@ GET /api/users/:id
 PUT /api/users/:id
 DELETE /api/users/:id
 
-# Articles
-GET /api/articles
-POST /api/articles
-GET /api/articles/:id
-PUT /api/articles/:id
-DELETE /api/articles/:id
-GET /api/articles/author/:authorId
+# Categories
+GET /api/categories
+
+# Products
+GET /api/products
+POST /api/products
+GET /api/products/:id
+PUT /api/products/:id
+DELETE /api/products/:id
+GET /api/products?category=beauty
+GET /api/products?query=mascara
 
 # Search
 GET /api/search?q=query&type=users
-GET /api/search?q=query&type=articles
+GET /api/search?q=query&type=products
 ```
 
 ## 🧪 Testing
@@ -318,7 +322,7 @@ fullstack-monorepo/
 │       │   ├── schemas.ts        # Zod validation schemas
 │       │   └── constants.ts      # Shared constants
 │       └── package.json
-├── docker-compose.yml              # Multi-service orchestration
+├── docker compose.yml              # Multi-service orchestration
 ├── turbo.json                      # Turborepo configuration
 └── package.json                    # Root package configuration
 ```
@@ -367,13 +371,13 @@ fullstack-monorepo/
 
 ```bash
 # Build and start all services
-docker-compose up --build -d
+docker compose up --build -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ### Individual Deployment
@@ -409,23 +413,23 @@ This project is licensed under the MIT License.
 **Docker services won't start**:
 ```bash
 # Clean up Docker resources
-docker-compose down -v
+docker compose down -v
 docker system prune
-docker-compose up --build
+docker compose up --build
 ```
 
 **Database connection issues**:
 ```bash
 # Check if MySQL is running
-docker-compose ps
+docker compose ps
 # Restart database
-docker-compose restart db
+docker compose restart db
 ```
 
 **Port conflicts**:
 - Frontend: Change port in `apps/frontend/package.json`
 - Backend: Set `PORT` environment variable
-- Database: Change port mapping in `docker-compose.yml`
+- Database: Change port mapping in `docker compose.yml`
 
 **TypeScript errors**:
 ```bash
