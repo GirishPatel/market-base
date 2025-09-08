@@ -53,7 +53,7 @@ app.use('/api', routes);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Fullstack Monorepo API is running',
+    message: 'MarketBase API is running',
     version: '1.0.0',
     documentation: '/api/docs',
   });

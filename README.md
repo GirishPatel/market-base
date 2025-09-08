@@ -1,47 +1,63 @@
-# Fullstack Monorepo
+# MarketBase Monorepo
 
-A production-ready fullstack application built with modern technologies and best practices. This monorepo contains a **Next.js frontend**, **Express.js backend**, **MySQL database**, and **Elasticsearch** for search functionality.
+A production-ready e-commerce platform built with modern technologies and best practices. MarketBase is a complete e-commerce solution featuring product catalog management, advanced search capabilities, user reviews, and comprehensive brand/category organization.
 
 ## 🚀 Quick Start
 
-### ⚡ One-Command Setup (NEW - Recommended for everyone!)
+### ⚡ One-Command Setup
 
-**NEW**: Get the entire application running with automated database setup:
+Get the entire MarketBase platform running:
 
 ```bash
 yarn docker:dev
 ```
 
-This single command:
-- ✅ **Builds all services** (database, backend, frontend)
-- ✅ **Runs database migrations** automatically  
-- ✅ **Seeds sample data** automatically
-- ✅ **Starts all services** in correct order
+This command automatically:
+- ✅ **Builds all services** (MySQL, Elasticsearch, Kibana, Backend API, Frontend)
+- ✅ **Runs database migrations** and **seeds sample data**
+- ✅ **Starts all services** in correct dependency order
 
-Then visit:
-- **Frontend**: http://localhost:3000
-- **API**: http://localhost:3001  
-- **API Docs**: http://localhost:3001/api/docs
 
-**No more manual database setup steps!** 🎉
 
-### Alternative Options
-
-**Option 1: Production mode (background)**
+Note: if for some reason it did not work then do followng
 ```bash
-yarn docker:up    # Runs in background
+docker compose up db elasticsearch
+yarn workspace backend run db:migrate
+yarn workspace backend run db:seed
+docker compose down
+---
+docker compose up
 ```
 
-**Option 2: Local Development (for active development)**
-```bash
-# Start only database services, run apps locally for hot reload
-docker compose up db elasticsearch -d
 
-# Run services locally (see DEVELOPMENT.md for full guide)
-yarn install
-cd apps/backend && yarn run db:migrate && yarn run db:seed
-cd apps/backend && yarn run dev  # Terminal 1
-cd apps/frontend && yarn run dev  # Terminal 2
+### 🌐 Access URLs
+
+Once started, access these services:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Frontend** | http://localhost:3000 | E-commerce website |
+| **Backend API** | http://localhost:3001 | REST API endpoints |
+| **API Documentation** | http://localhost:3001/api/docs | Swagger/OpenAPI docs |
+| **MySQL Database** | localhost:3306 | MySQL database (root/password) |
+| **Elasticsearch** | http://localhost:9200 | Search engine API |
+| **Kibana** | http://localhost:5601 | Elasticsearch management |
+| **Kibana Dev Console** | http://localhost:5601/app/dev_tools#/console | Elasticsearch queries |
+
+### 🔄 Data Migration & Seeding Commands
+
+If you need to reset or re-seed your database:
+
+```bash
+# Stop services and clean data
+yarn docker:clean
+
+# Restart with fresh data
+yarn docker:dev
+
+# Or manually reset database (if services are running)
+docker compose exec backend npm run db:reset
+docker compose exec backend npm run db:seed
 ```
 
 📖 **See [DEVELOPMENT.md](./DEVELOPMENT.md) for complete local development setup**
@@ -54,176 +70,116 @@ cd apps/frontend && yarn run dev  # Terminal 2
 
 ## 🏗️ Architecture
 
+MarketBase follows a modern microservices architecture with clear separation of concerns:
+
 ```
-fullstack-monorepo/
+market-base/
 ├── apps/
 │   ├── frontend/          # Next.js 14 + TypeScript + shadcn/ui
 │   └── backend/           # Express.js + TypeScript + Prisma
 ├── packages/
 │   └── shared/            # Shared types and utilities
-├── docker compose.yml     # Full stack orchestration
+├── docker-compose.yml     # Full stack orchestration
 └── package.json           # Workspace configuration
 ```
 
 ### Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn/ui |
-| **Backend** | Express.js, TypeScript, Prisma ORM, Swagger/OpenAPI |
-| **Database** | MySQL 8.0 |
-| **Search** | Elasticsearch 9.1 |
-| **Build System** | Turborepo, Yarn Workspaces |
-| **DevOps** | Docker, Docker Compose |
-| **Code Quality** | ESLint, Prettier, Husky, Commitlint |
-| **Testing** | Jest, Testing Library |
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS, shadcn/ui | Modern e-commerce UI |
+| **Backend** | Express.js, TypeScript, Prisma ORM, Swagger/OpenAPI | REST API services |
+| **Database** | MySQL 8.0 | Primary data storage |
+| **Search** | Elasticsearch 9.1 | Product search & analytics |
+| **Analytics** | Kibana 9.1 | Data visualization & monitoring |
+| **Build System** | Turborepo, Yarn Workspaces | Monorepo management |
+| **DevOps** | Docker, Docker Compose | Containerization & orchestration |
+| **Code Quality** | ESLint, Prettier, Husky, Commitlint | Code standards & git hooks |
+| **Testing** | Jest, Testing Library | Unit & integration tests |
 
-## 🛠️ Development Setup
+## 📊 Entity Relationship Diagram (ERD)
 
-### 1. Clone and Install
+```mermaid
+erDiagram
+    User ||--o{ Review : creates
+    Category ||--o{ Product : contains
+    Brand ||--o{ Product : manufactures
+    Product ||--o{ Review : receives
+    Product ||--o{ ProductTag : has
+    Tag ||--o{ ProductTag : tagged_as
 
-```bash
-git clone <repository-url>
-cd fullstack-monorepo
-yarn install    # This generates yarn.lock
-```
+    User {
+        int id PK
+        string email UK
+        string name
+        datetime createdAt
+        datetime updatedAt
+    }
 
-### 2. Environment Setup
+    Category {
+        int id PK
+        string name UK
+        datetime createdAt
+        datetime updatedAt
+    }
 
-Backend environment:
-Update environment variable in .env file
+    Brand {
+        int id PK
+        string name UK
+        datetime createdAt
+        datetime updatedAt
+    }
 
-Frontend environment:
-Update environment variable in .env file.local
+    Product {
+        int id PK
+        int categoryId FK
+        int brandId FK
+        string sku UK
+        string title
+        text description
+        float price
+        float discountPercentage
+        float rating
+        int stock
+        int minimumOrderQuantity
+        float weight
+        json dimensions
+        string warrantyInformation
+        string shippingInformation
+        string availabilityStatus
+        string returnPolicy
+        string barcode
+        string qrCode
+        json images
+        string thumbnail
+        datetime createdAt
+        datetime updatedAt
+    }
 
-### 3. Database Setup
+    Review {
+        int id PK
+        int productId FK
+        int reviewerId FK
+        float rating
+        text comment
+        datetime date
+        datetime createdAt
+        datetime updatedAt
+    }
 
-Start only the database services:
-```bash
-docker compose up db elasticsearch -d
-```
+    Tag {
+        int id PK
+        string name UK
+        datetime createdAt
+        datetime updatedAt
+    }
 
-Run database migrations and seed:
-```bash
-cd apps/backend
-yarn run db:migrate
-yarn run db:seed
-```
-
-### 4. Development Mode
-
-Run all applications in development mode:
-```bash
-yarn run dev
-```
-
-Or run individual services:
-```bash
-# Backend only
-cd apps/backend && yarn run dev
-
-# Frontend only
-cd apps/frontend && yarn run dev
-```
-
-## 📝 Available Commands
-
-### Root Level
-
-```bash
-yarn run dev           # Start all apps in development mode
-yarn run build         # Build all applications
-yarn test              # Run all tests
-yarn run lint          # Lint all code
-yarn run format        # Format all code
-yarn run typecheck     # Type check all TypeScript
-yarn run clean         # Clean all build artifacts
-
-# Docker commands
-yarn docker:dev         # Start with build and migrations (recommended)
-yarn docker:up          # Start all services in background
-yarn docker:down        # Stop all Docker services
-yarn docker:logs        # View logs from all services
-yarn docker:clean       # Clean reset (stops, removes volumes, cleans system)
-yarn verify:setup       # Verify that setup is working correctly
-```
-
-### Backend Commands
-
-```bash
-cd apps/backend
-
-yarn run dev           # Start in development mode
-yarn run build         # Build for production
-yarn start             # Start production server
-yarn test              # Run tests
-yarn run test:watch    # Run tests in watch mode
-
-# Database commands
-yarn run db:migrate    # Run database migrations
-yarn run db:generate   # Generate Prisma client
-yarn run db:seed       # Seed database with sample data
-yarn run db:studio     # Open Prisma Studio
-yarn run db:reset      # Reset database (destructive)
-```
-
-### Frontend Commands
-
-```bash
-cd apps/frontend
-
-yarn run dev           # Start development server
-yarn run build         # Build for production
-yarn start             # Start production server
-yarn test              # Run tests
-yarn run test:watch    # Run tests in watch mode
-```
-
-## 🐳 Docker Usage
-
-### Docker Build Behavior
-
-**`docker compose up`:**
-- ✅ **Automatically builds** images if they don't exist
-- ✅ **Uses cached images** if no changes detected
-- ✅ **Starts all services** (MySQL, Elasticsearch, Backend, Frontend)
-
-**`docker compose up --build`:**
-- ✅ **Forces rebuild** of all images
-- ✅ **Use this after code changes** for guaranteed fresh build
-
-### Service Options
-
-```bash
-# Full stack (builds + runs everything)
-docker compose up
-
-# Force rebuild after code changes
-docker compose up --build
-
-# Database services only (for local development)
-docker compose up db elasticsearch -d
-
-# Individual services
-docker compose up db                              # MySQL only
-docker compose up db elasticsearch               # DB + Search
-docker compose up db elasticsearch backend       # All except frontend
-```
-
-### Docker Management
-
-```bash
-# Stop all services
-docker compose down
-
-# Stop and remove volumes (fresh start)
-docker compose down -v
-
-# View running services
-docker compose ps
-
-# View logs
-docker compose logs -f
+    ProductTag {
+        int productId FK
+        int tagId FK
+        datetime createdAt
+        datetime updatedAt
+    }
 ```
 
 ## 🔍 API Documentation
@@ -232,192 +188,161 @@ Once the backend is running, visit:
 - **Swagger UI**: http://localhost:3001/api/docs
 - **Health Check**: http://localhost:3001/api/health
 
-### Sample API Endpoints
+### Complete API Endpoints
 
+#### Health & System
 ```bash
-# Health check
-GET /api/health
-
-# Users
-GET /api/users
-POST /api/users
-GET /api/users/:id
-PUT /api/users/:id
-DELETE /api/users/:id
-
-# Categories
-GET /api/categories
-
-# Products
-GET /api/products
-POST /api/products
-GET /api/products/:id
-PUT /api/products/:id
-DELETE /api/products/:id
-GET /api/products?category=beauty
-GET /api/products?query=mascara
-
-# Search
-GET /api/search?q=query&type=users
-GET /api/search?q=query&type=products
+GET /api/health                    # System health check
 ```
 
-## 🧪 Testing
-
+#### Products
 ```bash
-# Run all tests
-yarn test
-
-# Run tests in watch mode
-yarn run test:watch
-
-# Run tests with coverage
-yarn test -- --coverage
-
-# Test specific package
-yarn workspace apps/backend test
-yarn workspace apps/frontend test
+GET /api/products                  # List all products with pagination
+GET /api/products/:id              # Get product by ID
+POST /api/products                 # Create new product
+PUT /api/products/:id              # Update product
+DELETE /api/products/:id           # Delete product
+GET /api/products?category=beauty  # Filter by category
+GET /api/products?brand=apple      # Filter by brand
+GET /api/products?query=mascara    # Search products
+GET /api/products?minPrice=10&maxPrice=100  # Price range filter
 ```
 
-## 🔧 Code Quality
-
-The project includes comprehensive code quality tools:
-
-- **ESLint**: Modern flat config with TypeScript rules
-- **Prettier**: Code formatting
-- **Husky**: Git hooks for pre-commit and commit-msg
-- **Commitlint**: Conventional commit message format
-- **lint-staged**: Run linters on staged files
-
-### Pre-commit Hooks
-
-Before each commit, the following runs automatically:
+#### Categories
 ```bash
-lint-staged  # Lint and format staged files
-commitlint   # Validate commit message format
+GET /api/categories                # List all categories
+GET /api/categories/:id            # Get category by ID
+POST /api/categories               # Create new category
+PUT /api/categories/:id            # Update category
+DELETE /api/categories/:id         # Delete category
 ```
 
-### Manual Quality Checks
-
+#### Brands
 ```bash
-yarn run lint       # Check for linting issues
-yarn run lint:fix   # Fix auto-fixable linting issues
-yarn run format     # Format all code
-yarn run typecheck  # Run TypeScript checks
+GET /api/brands                    # List all brands
+GET /api/brands/:id                # Get brand by ID
+POST /api/brands                   # Create new brand
+PUT /api/brands/:id                # Update brand
+DELETE /api/brands/:id             # Delete brand
 ```
+
+#### Tags
+```bash
+GET /api/tags                      # List all tags
+GET /api/tags/:id                  # Get tag by ID
+POST /api/tags                     # Create new tag
+PUT /api/tags/:id                  # Update tag
+DELETE /api/tags/:id               # Delete tag
+```
+
+#### Search & Autosuggest
+```bash
+GET /api/search/autosuggest?q=phone    # Get search suggestions
+```
+
+## 🌟 Features
+
+### Frontend Features
+- ✅ **Product Catalog**: Rich product listings with filtering and pagination
+- ✅ **Advanced Search**: Real-time search with autocomplete suggestions
+- ✅ **Product Details**: Comprehensive product information pages
+- ✅ **Category Navigation**: Organized product browsing by categories
+- ✅ **Brand Showcase**: Brand-specific product collections
+- ✅ **Responsive Design**: Mobile-first responsive UI
+- ✅ **Modern UI**: Built with shadcn/ui component library
+- ✅ **Type Safety**: Full TypeScript integration
+- ✅ **Performance**: Optimized loading and caching strategies
+
+### Backend Features
+- ✅ **RESTful API**: Comprehensive REST API with OpenAPI documentation
+- ✅ **Database ORM**: Prisma with MySQL for robust data management
+- ✅ **Search Engine**: Elasticsearch integration with fallback mechanisms
+- ✅ **Data Validation**: Request/response validation with Zod schemas
+- ✅ **Error Handling**: Centralized error handling with proper HTTP status codes
+- ✅ **Logging**: Winston logger with multiple transports and log levels
+- ✅ **Health Monitoring**: Database and service health checks
+- ✅ **Rate Limiting**: API endpoint protection against abuse
+- ✅ **CORS & Security**: Helmet security headers and CORS configuration
+- ✅ **Testing**: Comprehensive Jest test suite with API testing
+
+### DevOps Features
+- ✅ **Containerization**: Multi-stage Docker builds for optimal image sizes
+- ✅ **Orchestration**: Docker Compose for full-stack development
+- ✅ **Build System**: Turborepo for efficient monorepo builds and caching
+- ✅ **Code Quality**: ESLint, Prettier, Husky git hooks
+- ✅ **Type Checking**: Strict TypeScript configuration across all packages
+- ✅ **Hot Reload**: Development environment with live reloading
+- ✅ **Environment Management**: Flexible environment configuration
 
 ## 📁 Project Structure
 
 ```
-fullstack-monorepo/
+market-base/
 ├── apps/
-│   ├── frontend/                    # Next.js application
+│   ├── frontend/                    # Next.js E-commerce Frontend
 │   │   ├── src/
-│   │   │   ├── app/                # App Router pages
+│   │   │   ├── app/                # Next.js 14 App Router
+│   │   │   │   ├── products/       # Product listing & detail pages
+│   │   │   │   ├── search/         # Search results page
+│   │   │   │   └── globals.css     # Global styles
 │   │   │   ├── components/         # React components
-│   │   │   │   └── ui/            # shadcn/ui components
+│   │   │   │   ├── ui/            # shadcn/ui base components
+│   │   │   │   ├── ProductCard.tsx # Product display component
+│   │   │   │   ├── SearchBar.tsx   # Search interface
+│   │   │   │   └── CategoryFilter.tsx # Category filtering
 │   │   │   ├── hooks/             # Custom React hooks
-│   │   │   └── lib/               # Utilities and API client
-│   │   ├── Dockerfile
+│   │   │   ├── lib/               # Utilities and API client
+│   │   │   └── types/             # TypeScript type definitions
+│   │   ├── Dockerfile             # Production container
 │   │   └── package.json
-│   └── backend/                     # Express.js application
+│   └── backend/                     # Express.js API Backend
 │       ├── src/
 │       │   ├── config/            # Configuration files
-│       │   ├── controllers/       # API controllers
+│       │   │   ├── database.ts    # Database connection
+│       │   │   └── elasticsearch.ts # Search engine config
+│       │   ├── controllers/       # API request handlers
+│       │   │   ├── productController.ts
+│       │   │   ├── categoryController.ts
+│       │   │   └── brandController.ts
 │       │   ├── middleware/        # Express middleware
 │       │   ├── repositories/      # Data access layer
-│       │   ├── routes/           # API routes
+│       │   │   ├── productRepository.ts
+│       │   │   └── categoryRepository.ts
+│       │   ├── routes/           # API route definitions
 │       │   ├── services/         # Business logic layer
+│       │   │   ├── productService.ts
+│       │   │   └── searchService.ts
 │       │   └── __tests__/        # Test files
 │       ├── prisma/               # Database schema and migrations
-│       ├── Dockerfile
+│       │   ├── schema.prisma     # Database models
+│       │   ├── migrations/       # Database migration files
+│       │   └── seed.ts          # Database seed data
+│       ├── Dockerfile            # Production container
+│       ├── docker-init.sh        # Container initialization script
 │       └── package.json
 ├── packages/
-│   └── shared/                      # Shared types and utilities
+│   └── shared/                      # Shared utilities and types
 │       ├── src/
-│       │   ├── types.ts          # TypeScript interfaces
+│       │   ├── types.ts          # Common TypeScript interfaces
 │       │   ├── schemas.ts        # Zod validation schemas
 │       │   └── constants.ts      # Shared constants
 │       └── package.json
-├── docker compose.yml              # Multi-service orchestration
-├── turbo.json                      # Turborepo configuration
-└── package.json                    # Root package configuration
+├── scripts/                         # Build and deployment scripts
+├── docker-compose.yml              # Multi-service orchestration
+├── turbo.json                      # Turborepo build configuration
+├── DEVELOPMENT.md                  # Developer setup guide
+└── package.json                    # Root workspace configuration
 ```
 
 ## 🔒 Security Features
 
-- **Helmet**: Security headers
-- **CORS**: Cross-origin resource sharing configuration
-- **Rate Limiting**: API endpoint protection
-- **Input Validation**: Zod schema validation
+- **Helmet**: Comprehensive security headers
+- **CORS**: Configurable cross-origin resource sharing
+- **Rate Limiting**: API endpoint protection with customizable limits
+- **Input Validation**: Robust schema validation with Zod
 - **Environment Variables**: Secure configuration management
-
-## 🌟 Features
-
-### Backend Features
-- ✅ **Layered Architecture**: Controllers → Services → Repositories
-- ✅ **Database ORM**: Prisma with MySQL
-- ✅ **Search Engine**: Elasticsearch integration with fallback
-- ✅ **API Documentation**: Auto-generated Swagger/OpenAPI docs
-- ✅ **Validation**: Request/response validation with Zod
-- ✅ **Error Handling**: Centralized error handling
-- ✅ **Logging**: Winston logger with multiple transports
-- ✅ **Testing**: Jest with supertest for API testing
-- ✅ **Health Checks**: Database and service health monitoring
-
-### Frontend Features
-- ✅ **Modern UI**: shadcn/ui component library
-- ✅ **Type Safety**: Full TypeScript integration
-- ✅ **Responsive Design**: Mobile-first approach
-- ✅ **API Integration**: Type-safe API client
-- ✅ **Toast Notifications**: User feedback system
-- ✅ **Search Interface**: Real-time search functionality
-- ✅ **Testing**: Jest with Testing Library
-
-### DevOps Features
-- ✅ **Containerization**: Docker multi-stage builds
-- ✅ **Orchestration**: Docker Compose for full stack
-- ✅ **Build System**: Turborepo for efficient builds
-- ✅ **Code Quality**: ESLint + Prettier + Husky
-- ✅ **Type Checking**: Strict TypeScript configuration
-- ✅ **Hot Reload**: Development with live reloading
-
-## 🚀 Deployment
-
-### Docker Production
-
-```bash
-# Build and start all services
-docker compose up --build -d
-
-# View logs
-docker compose logs -f
-
-# Stop services
-docker compose down
-```
-
-### Individual Deployment
-
-Each application can be deployed separately:
-
-**Backend**:
-- Can be deployed to any Node.js hosting service
-- Requires MySQL and Elasticsearch connections
-- Environment variables for configuration
-
-**Frontend**:
-- Can be deployed to Vercel, Netlify, or any static hosting
-- Requires backend API URL configuration
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes following the coding standards
-4. Commit using conventional format: `git commit -m "feat: add amazing feature"`
-5. Push to the branch: `git push origin feature/amazing-feature`
-6. Open a Pull Request
+- **SQL Injection Protection**: Prisma ORM prevents SQL injection attacks
+- **Type Safety**: TypeScript ensures compile-time safety
 
 ## 📄 License
 
@@ -430,39 +355,35 @@ This project is licensed under the MIT License.
 **Docker services won't start**:
 ```bash
 # Clean up Docker resources
-docker compose down -v
-docker system prune
-docker compose up --build
+yarn docker:clean
+yarn docker:dev
 ```
 
 **Database connection issues**:
 ```bash
-# Check if MySQL is running
+# Check service status
 docker compose ps
-# Restart database
+# Restart specific service
 docker compose restart db
+# View service logs
+docker compose logs db
 ```
 
 **Port conflicts**:
-- Frontend: Change port in `apps/frontend/package.json`
-- Backend: Set `PORT` environment variable
-- Database: Change port mapping in `docker compose.yml`
+- Frontend (3000): Change in `apps/frontend/package.json`
+- Backend (3001): Set `PORT` environment variable
+- Database (3306): Change mapping in `docker-compose.yml`
+- Elasticsearch (9200/9300): Update ports in `docker-compose.yml`
+- Kibana (5601): Modify port mapping in `docker-compose.yml`
 
-**TypeScript errors**:
+**Search functionality not working**:
 ```bash
-# Regenerate types
-yarn run typecheck
-# Clean and rebuild
-yarn run clean && yarn run build
+# Check Elasticsearch health
+curl http://localhost:9200/_cat/health
+# Re-index products
+docker compose exec backend npm run search:reindex
 ```
-
-### Getting Help
-
-- 🐛 **Bug Reports**: Open an issue with reproduction steps
-- 💡 **Feature Requests**: Open an issue with detailed description
-- 📖 **Documentation**: Check the inline comments and type definitions
-- 🔧 **Development**: Refer to individual package README files
 
 ---
 
-**Happy coding! 🎉**
+**MarketBase - Building the future of e-commerce! 🛒**
