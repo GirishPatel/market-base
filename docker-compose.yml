@@ -50,12 +50,10 @@ services:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
-    env_file:
-      - .env
     environment:
       # Docker-specific overrides
       - NODE_ENV=production
-      - DATABASE_URL=mysql://myuser:password@db:3306/mydb
+      - DATABASE_URL=mysql://root:password@db:3306/mydb
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
     ports:
       - "3001:3001"
@@ -66,12 +64,7 @@ services:
         condition: service_healthy
     volumes:
       - ./apps/backend/logs:/app/logs
-    command: >
-      sh -c "
-        npx prisma migrate deploy &&
-        npx prisma db seed &&
-        npm start
-      "
+    command: ["./docker-init.sh"]
 
   # Frontend
   frontend:

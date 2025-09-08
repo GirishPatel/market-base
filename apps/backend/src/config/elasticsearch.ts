@@ -16,7 +16,7 @@ export const setupElasticsearch = async () => {
     if (!productsIndexExists) {
       await client.indices.create({
         index: 'products',
-        body: PRODUCT_INDEX_MAPPINGS,
+        ...PRODUCT_INDEX_MAPPINGS,
       });
       logger.info('Created products index');
     }

@@ -14,6 +14,30 @@ export default [
     },
     languageOptions: {
       parser: typescriptParser,
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        fetch: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        // React globals  
+        React: 'readonly',
+        // HTML Element types
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLParagraphElement: 'readonly',
+        HTMLHeadingElement: 'readonly',
+        Node: 'readonly',
+        MouseEvent: 'readonly',
+        URLSearchParams: 'readonly',
+        RequestInit: 'readonly',
+      },
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
@@ -29,6 +53,8 @@ export default [
       '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-undef': 'error',
+      'no-unused-vars': 'off', // Let TypeScript handle this
     },
   },
 ];

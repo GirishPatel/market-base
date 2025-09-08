@@ -15,7 +15,7 @@ import {
   Shield, 
   RotateCcw, 
   Barcode,
-  Calendar,
+  // Calendar,
   ShoppingCart,
   Heart,
   Share2
@@ -30,17 +30,19 @@ export default function ProductDetailPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (params.id) {
+    if (params?.id) {
       loadProduct();
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   const loadProduct = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.getProductById(Number(params.id));
-      setProduct(response.data);
-    } catch (error) {
+      const response = await apiClient.getProductById(Number(params?.id));
+      if (response.data) {
+        setProduct(response.data);
+      }
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to load product details',

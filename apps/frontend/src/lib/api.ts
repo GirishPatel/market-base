@@ -1,4 +1,4 @@
-import { ApiResponse, User, Product, Category, CreateUserRequest, CreateProductRequest, UpdateUserRequest, UpdateProductRequest, SearchResponse } from '@shared/types';
+import { ApiResponse, User, Product, Category, CreateUserRequest, CreateProductRequest, UpdateUserRequest, UpdateProductRequest, SearchResponse, ProductsResponse } from '@shared/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
@@ -76,12 +76,20 @@ class ApiClient {
 
   // Categories
   async getCategories() {
-    return this.request<Category[]>('/api/categories');
+    const url = `${this.baseUrl}/api/categories`;
+    const response = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return await response.json();
   }
 
   // Tags
   async getTags() {
-    return this.request<{ success: boolean; data: Array<{id: number, name: string}> }>('/api/tags');
+    const url = `${this.baseUrl}/api/tags`;
+    const response = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return await response.json();
   }
 
   async suggestTags(query: string, size = 10) {
@@ -121,7 +129,7 @@ class ApiClient {
       sortOrder?: 'asc' | 'desc';
       query?: string;
     } = {}
-  ) {
+  ): Promise<ProductsResponse> {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
@@ -133,9 +141,27 @@ class ApiClient {
       }
     });
 
-    return this.request<any>(
-      `/api/products?${params}`
-    );
+    const url = `${this.baseUrl}/api/products?${params}`;
+    
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'An error occurred');
+      }
+
+      return data; // Return the direct response which matches ProductsResponse
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
   }
 
   async getProductById(id: number) {

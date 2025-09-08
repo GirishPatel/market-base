@@ -132,6 +132,16 @@ export interface UpdateProductRequest {
 
 export interface ProductsResponse {
   products: Product[];
+  meta?: {
+    page_no?: number;
+    page_size?: number;
+    total?: number;
+  };
+  filters?: {
+    brands?: any[];
+    categories?: any[];
+    tags?: any[];
+  };
 }
 
 export interface SearchRequest {

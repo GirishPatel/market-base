@@ -96,8 +96,7 @@ export class BrandRepository {
     return await this.prisma.brand.findMany({
       where: {
         name: {
-          contains: query,
-          mode: 'insensitive'
+          contains: query
         }
       },
       select: {

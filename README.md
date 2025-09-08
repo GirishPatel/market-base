@@ -4,26 +4,40 @@ A production-ready fullstack application built with modern technologies and best
 
 ## 🚀 Quick Start
 
-### Option 1: Full Docker (Recommended for first-time users)
-Get the entire application running with one command:
+### ⚡ One-Command Setup (NEW - Recommended for everyone!)
+
+**NEW**: Get the entire application running with automated database setup:
 
 ```bash
-docker compose up
+yarn docker:dev
 ```
 
-This **automatically builds and runs** all services. Then visit:
+This single command:
+- ✅ **Builds all services** (database, backend, frontend)
+- ✅ **Runs database migrations** automatically  
+- ✅ **Seeds sample data** automatically
+- ✅ **Starts all services** in correct order
+
+Then visit:
 - **Frontend**: http://localhost:3000
-- **API**: http://localhost:3001
+- **API**: http://localhost:3001  
 - **API Docs**: http://localhost:3001/api/docs
 
-### Option 2: Local Development (Recommended for active development)
-For faster development with hot reload:
+**No more manual database setup steps!** 🎉
 
+### Alternative Options
+
+**Option 1: Production mode (background)**
 ```bash
-# 1. Start only database services in Docker
+yarn docker:up    # Runs in background
+```
+
+**Option 2: Local Development (for active development)**
+```bash
+# Start only database services, run apps locally for hot reload
 docker compose up db elasticsearch -d
 
-# 2. Run services locally (see DEVELOPMENT.md for full guide)
+# Run services locally (see DEVELOPMENT.md for full guide)
 yarn install
 cd apps/backend && yarn run db:migrate && yarn run db:seed
 cd apps/backend && yarn run dev  # Terminal 1
@@ -126,9 +140,12 @@ yarn run typecheck     # Type check all TypeScript
 yarn run clean         # Clean all build artifacts
 
 # Docker commands
-yarn run docker:up     # Start all services with Docker
-yarn run docker:down   # Stop all Docker services
-yarn run docker:logs   # View logs from all services
+yarn docker:dev         # Start with build and migrations (recommended)
+yarn docker:up          # Start all services in background
+yarn docker:down        # Stop all Docker services
+yarn docker:logs        # View logs from all services
+yarn docker:clean       # Clean reset (stops, removes volumes, cleans system)
+yarn verify:setup       # Verify that setup is working correctly
 ```
 
 ### Backend Commands

@@ -30,11 +30,19 @@ RUN yarn run build
 WORKDIR /app/apps/backend
 RUN yarn run build
 
+
+COPY ../../data/products.json ./products.json
+
+# Copy and set permissions for init script
+COPY apps/backend/docker-init.sh ./docker-init.sh
+RUN chmod +x ./docker-init.sh
+
 # Create logs directory
 RUN mkdir -p logs
 
 # Expose port
 EXPOSE 3001
 
-# Start the application
-CMD ["yarn", "start"]
+# Install bash and mysql client, then start the application using init script
+RUN apk add --no-cache bash mysql-client
+ENTRYPOINT ["/bin/bash", "./docker-init.sh"]

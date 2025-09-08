@@ -3,10 +3,12 @@ export const PRODUCT_INDEX_MAPPINGS = {
     analysis: {
       analyzer: {
         suggest_analyzer: {
+          type: 'custom',
           tokenizer: 'keyword',
           filter: ['lowercase', 'edge_ngram_filter']
         },
         search_analyzer: {
+          type: 'custom',
           tokenizer: 'keyword', 
           filter: ['lowercase']
         }

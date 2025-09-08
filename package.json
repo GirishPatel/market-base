@@ -23,6 +23,10 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
+    "docker:dev": "docker compose up --build",
+    "docker:clean": "docker compose down -v && docker system prune -f",
+    "verify:setup": "./scripts/verify-setup.sh",
+    "db:seed": "yarn workspace backend run db:seed",
     "prepare": "husky install",
     "postinstall": "yarn run prepare"
   },

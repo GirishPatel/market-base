@@ -54,7 +54,7 @@ model Tag {
 model Product {
   id                    Int          @id @default(autoincrement())
   categoryId            Int
-  brandId               Int
+  brandId               Int?
   sku                   String       @unique
   title                 String
   description           String       @db.Text
@@ -77,7 +77,7 @@ model Product {
   thumbnail             String?
   
   category              Category     @relation(fields: [categoryId], references: [id])
-  brand                 Brand        @relation(fields: [brandId], references: [id])
+  brand                 Brand?       @relation(fields: [brandId], references: [id])
   reviews               Review[]
   productTags           ProductTag[]
 

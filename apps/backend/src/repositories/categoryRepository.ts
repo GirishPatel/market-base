@@ -96,8 +96,7 @@ export class CategoryRepository {
     return await this.prisma.category.findMany({
       where: {
         name: {
-          contains: query,
-          mode: 'insensitive'
+          contains: query
         }
       },
       select: {

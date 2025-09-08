@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 
 interface AutocompleteProps {
   placeholder?: string;
-  value: string;
+  value?: string;
   onChange?: (value: string) => void;
   onSelect?: (value: string) => void;
   suggestions: string[];
@@ -34,11 +34,11 @@ export function Autocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (localValue.length >= minChars) {
+    if ((localValue || '').length >= minChars) {
       if (onSuggestionsFetch) {
         // Server-side filtering
         setLoading(true);
-        onSuggestionsFetch(localValue).then(() => {
+        onSuggestionsFetch(localValue || '').then(() => {
           setLoading(false);
           setFilteredSuggestions(suggestions);
           // setIsOpen(suggestions.length > 0);
@@ -47,7 +47,7 @@ export function Autocomplete({
       } else {
         // Client-side filtering
         const filtered = suggestions.filter(suggestion =>
-          suggestion.toLowerCase().includes(localValue.toLowerCase())
+          suggestion.toLowerCase().includes((localValue || '').toLowerCase())
         ).slice(0, 10);
         setFilteredSuggestions(filtered);
         // setIsOpen(filtered.length > 0);
@@ -87,7 +87,7 @@ export function Autocomplete({
   };
 
   const handleInputFocus = () => {
-    if (localValue.length >= minChars && filteredSuggestions.length > 0) {
+    if ((localValue || '').length >= minChars && filteredSuggestions.length > 0) {
       setIsOpen(true);
     }
   };
@@ -137,7 +137,7 @@ export function Autocomplete({
           onKeyDown={handleKeyDown}
           disabled={disabled}
         />
-        {(loading || (filteredSuggestions.length > 0 && localValue.length >= minChars)) && (
+        {(loading || (filteredSuggestions.length > 0 && (localValue || '').length >= minChars)) && (
           <ChevronDown
             className={`absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 transition-transform ${
               isOpen ? 'rotate-180' : ''

@@ -32,7 +32,6 @@ export class AutosuggestController {
       // Use Elasticsearch aggregation for brand suggestions with counts
       const response = await elasticsearchClient.search({
         index: 'products',
-        body: {
           size: 0,
           query: {
             match: {
@@ -51,10 +50,10 @@ export class AutosuggestController {
               }
             }
           }
-        }
       });
 
-      const suggestions = response.aggregations?.brand_suggestions?.buckets?.map((bucket: any) => ({
+      const brandAgg = response.aggregations?.brand_suggestions as any;
+      const suggestions = brandAgg?.buckets?.map((bucket: any) => ({
         text: bucket.key,
         count: bucket.doc_count
       })) || [];
@@ -97,7 +96,6 @@ export class AutosuggestController {
       // Use Elasticsearch aggregation for category suggestions with counts
       const response = await elasticsearchClient.search({
         index: 'products',
-        body: {
           size: 0,
           query: {
             match: {
@@ -116,10 +114,10 @@ export class AutosuggestController {
               }
             }
           }
-        }
       });
 
-      const suggestions = response.aggregations?.category_suggestions?.buckets?.map((bucket: any) => ({
+      const categoryAgg = response.aggregations?.category_suggestions as any;
+      const suggestions = categoryAgg?.buckets?.map((bucket: any) => ({
         text: bucket.key,
         count: bucket.doc_count
       })) || [];
@@ -162,7 +160,6 @@ export class AutosuggestController {
       // Use Elasticsearch aggregation for tag suggestions with counts
       const response = await elasticsearchClient.search({
         index: 'products',
-        body: {
           size: 0,
           query: {
             match: {
@@ -181,10 +178,10 @@ export class AutosuggestController {
               }
             }
           }
-        }
       });
 
-      const suggestions = response.aggregations?.tag_suggestions?.buckets?.map((bucket: any) => ({
+      const tagAgg = response.aggregations?.tag_suggestions as any;
+      const suggestions = tagAgg?.buckets?.map((bucket: any) => ({
         text: bucket.key,
         count: bucket.doc_count
       })) || [];
@@ -200,8 +197,7 @@ export class AutosuggestController {
       const suggestions = await prisma.tag.findMany({
         where: {
           name: {
-            contains: query,
-            mode: 'insensitive'
+            contains: query
           }
         },
         select: {
@@ -222,7 +218,7 @@ export class AutosuggestController {
 
       const formattedSuggestions = suggestions.map(tag => ({
         text: tag.name,
-        count: tag._count.productTags
+        count: (tag as any)._count.productTags
       }));
 
       res.json({

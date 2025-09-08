@@ -56,15 +56,25 @@ interface ProductsFile {
 async function main() {
   console.log('🌱 Starting e-commerce seed...');
 
-  // Read products data from JSON file
-  const productsFilePath = path.join(process.cwd(), '../../data/products.json');
+  // Read products data from JSON file (try monorepo path first, then Docker path)
+  const localProductsPath = path.join(process.cwd(), '../../data/products.json');
+  const dockerProductsPath = path.join(process.cwd(), 'products.json');
+  const productsFilePath = fs.existsSync(localProductsPath)
+    ? localProductsPath
+    : fs.existsSync(dockerProductsPath)
+      ? dockerProductsPath
+      : '';
 
-  // Check if products.json exists
-  if (!fs.existsSync(productsFilePath)) {
-    console.error(`❌ Products data file not found at: ${productsFilePath}`);
-    console.log('Please ensure the data/products.json file exists');
+  // Check if products.json exists in either location
+  if (!productsFilePath) {
+    console.error('❌ Products data file not found in either location.');
+    console.log(`Checked: ${localProductsPath}`);
+    console.log(`Checked: ${dockerProductsPath}`);
+    console.log('Please ensure the data file exists at one of the above paths');
     return;
   }
+
+  console.log(`📄 Using products data file: ${productsFilePath}`);
 
   const productsData: ProductsFile = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
 
@@ -142,8 +152,9 @@ async function main() {
 
       // Create or get brand - handle missing brand names
       const brandName = productData.brand;
+      let brand = null;
       if (brandName) {
-        let brand = await prisma.brand.findUnique({
+        brand = await prisma.brand.findUnique({
           where: { name: brandName },
         });
 
@@ -191,7 +202,7 @@ async function main() {
             images: JSON.stringify(productData.images),
             thumbnail: productData.thumbnail,
             categoryId: category.id,
-            brandId: brand.id,
+            brandId: brand?.id,
           },
           include: {
             category: true,

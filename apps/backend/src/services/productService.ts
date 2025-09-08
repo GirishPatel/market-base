@@ -115,13 +115,13 @@ export class ProductService {
       console.log('searchBody', JSON.stringify(searchBody));
       const response = await this.elasticsearchClient.search({
         index: 'products',
-        body: searchBody
+        ...searchBody
       });
 
       const products = response.hits.hits.map((hit: any) => hit._source);
       
       if (products.length === 0) {
-        return { products: [], total: response.hits.total?.value || 0 };
+        return { products: [], total: typeof response.hits.total === 'number' ? response.hits.total : response.hits.total?.value || 0 };
       }
 
       // // Get full product details from database
@@ -133,7 +133,7 @@ export class ProductService {
       
       return { 
         products: products, 
-        total: response.hits.total?.value || 0 
+        total: typeof response.hits.total === 'number' ? response.hits.total : response.hits.total?.value || 0 
       };
     } catch (error) {
       console.error('Elasticsearch advanced search failed:', error);
@@ -194,7 +194,7 @@ export class ProductService {
 
       const response = await this.elasticsearchClient.search({
         index: 'products',
-        body: searchBody
+        ...searchBody
       });
 
       const productIds = response.hits.hits.map((hit: any) => hit._source.id);
@@ -288,7 +288,7 @@ export class ProductService {
     await this.elasticsearchClient.index({
       index: 'products',
       id: product.id.toString(),
-      body: doc
+      document: doc
     });
   }
 
@@ -304,7 +304,7 @@ export class ProductService {
         // Create index with mapping
         await this.elasticsearchClient.indices.create({
           index: 'products',
-          body: PRODUCT_INDEX_MAPPINGS,
+          ...PRODUCT_INDEX_MAPPINGS,
         });
       }
 

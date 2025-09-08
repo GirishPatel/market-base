@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Fullstack Monorepo Demo",
+  title: "Market Base",
   description: "A modern fullstack application built with Next.js and Express",
 };
 

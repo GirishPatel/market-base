@@ -6,7 +6,7 @@ interface SliderProps {
   min?: number;
   max?: number;
   step?: number;
-  value: number;
+  value?: number;
   onChange: (value: number) => void;
   label?: string;
   suffix?: string;
@@ -28,7 +28,7 @@ export function Slider({
   const [isDragging, setIsDragging] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  const percentage = ((value - min) / (max - min)) * 100;
+  const percentage = (((value || 0) - min) / (max - min)) * 100;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return;

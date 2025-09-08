@@ -1,11 +1,80 @@
 # 🚀 Local Development Guide
 
-This guide covers running the database and Elasticsearch in Docker while running the frontend and backend services locally for faster development with hot reload.
+## 🚀 Quick Start (Automated Setup for New Developers)
+
+**NEW**: The entire application can now be started with a single command! No more manual database setup steps.
+
+```bash
+# One-command setup: builds, migrates, seeds, and starts everything
+yarn docker:dev
+```
+
+This command automatically:
+- ✅ Builds and starts all services (MySQL, Elasticsearch, backend, frontend)
+- ✅ Runs database migrations
+- ✅ Seeds the database with sample data
+- ✅ Ensures proper startup order with health checks
+
+**Access your app:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
+- API Docs: http://localhost:3001/api/docs
+
+### Additional Docker Commands
+
+```bash
+# Start services in background (production mode)
+yarn docker:up
+
+# View logs from all services
+yarn docker:logs
+
+# Stop all services  
+yarn docker:down
+
+# Clean reset (stops services, removes volumes, cleans Docker system)
+yarn docker:clean
+
+# Verify that setup is working correctly
+yarn verify:setup
+```
+
+### Troubleshooting Automated Setup
+
+**If startup fails:**
+```bash
+# Clean everything and try again
+yarn docker:clean
+yarn docker:dev
+```
+
+**To debug issues:**
+```bash
+# View detailed logs
+yarn docker:logs
+
+# View logs for specific service
+docker compose logs -f backend
+docker compose logs -f db
+```
+
+**Manual database operations (if needed):**
+```bash
+# Run migrations manually
+docker compose exec backend npx prisma migrate deploy
+
+# Run seeding manually
+docker compose exec backend npm run db:seed
+```
+
+## 🛠️ Alternative: Local Development with Docker Services
+
+This guide covers running database and Elasticsearch in Docker while running frontend and backend locally for faster development with hot reload.
 
 ## 📋 Prerequisites
 
-- **Node.js 20+**
-- **NPM** (comes with Node.js)
+- **Node.js 20+** 
+- **Yarn** (project uses Yarn workspaces)
 - **Docker & Docker Compose**
 
 ## 🛠️ Setup Steps

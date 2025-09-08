@@ -16,7 +16,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
-  const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
+  // const [brandSuggestions, setBrandSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -33,7 +33,7 @@ export default function HomePage() {
     sortBy: 'newest',
     sortOrder: 'desc' as 'asc' | 'desc'
   });
-  const [brandInputValue, setBrandInputValue] = useState('');
+  // const [brandInputValue, setBrandInputValue] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,16 +69,10 @@ export default function HomePage() {
       }
 
       const response = await apiClient.getProducts(currentPage, 12, filterParams);
-      // Handle the actual API response structure
-      if (response.data?.products) {
-        setProducts(response.data.products);
-        setTotalProducts(response.data.meta?.total || response.data.products.length);
-      } else if (response.products) {
-        // Handle direct response structure
-        setProducts(response.products);
-        setTotalProducts(response.meta?.total || response.products.length);
-      }
-    } catch (error) {
+      // Handle the direct API response structure
+      setProducts(response.products);
+      setTotalProducts(response.meta?.total || response.products.length);
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to load products',
@@ -93,15 +87,11 @@ export default function HomePage() {
     try {
       const response = await apiClient.getCategories();
       // Handle the actual API response structure
-      if (response.data?.categories) {
-        setCategories(response.data.categories);
-      } else if (response.categories) {
+      if (response.categories) {
         setCategories(response.categories);
-      } else if (response.data) {
-        setCategories(response.data);
       }
-    } catch (error) {
-      console.error('Failed to load categories:', error);
+    } catch {
+      // console.error('Failed to load categories:', error);
     }
   };
 
@@ -109,70 +99,15 @@ export default function HomePage() {
     try {
       const response = await apiClient.getTags();
       if (response.success && response.data) {
-        setAllTags(response.data.map(tag => tag.name));
+        setAllTags(response.data.map((tag: { name: string }) => tag.name));
       }
-    } catch (error) {
-      console.error('Failed to load tags:', error);
+    } catch {
+      // console.error('Failed to load tags:', error);
     }
   };
-
-  const loadTopBrands = async () => {
-    try {
-      const response = await apiClient.getAllBrands(10);
-      const brands = response.brands;
-      if (brands && brands.length > 0) {
-        const newSuggestions = brands.map((suggestion: any) => suggestion.name);
-        setBrandSuggestions(newSuggestions);
-        return newSuggestions;
-      }
-      return [];
-    } catch (error) {
-      console.error('Failed to load top brands:', error);
-      setBrandSuggestions([]);
-      return [];
-    }
-  };
-
-  const fetchBrandSuggestions = async (query: string) => {
-    // For empty query, load top brands
-    if (!query || query.length === 0) {
-      return loadTopBrands();
-    }
-    
-    // Only search after 3+ characters
-    if (query.length < 3) {
-      setBrandSuggestions([]);
-      return [];
-    }
-
-    try {
-      const response = await apiClient.suggestBrands(query, 10);
-      if ((response as any).suggestions) {
-        const newSuggestions = (response as any).suggestions.map((suggestion: any) => suggestion.text);
-        setBrandSuggestions(newSuggestions);
-        return newSuggestions;
-      }
-      return [];
-    } catch (error) {
-      console.error('Failed to fetch brand suggestions:', error);
-      setBrandSuggestions([]);
-      throw error;
-    }
-  };
-
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
-  };
-
-  const handleBrandInputChange = (value: string) => {
-    // setBrandInputValue(value);
-  };
-
-  const handleBrandSelection = (value: string) => {
-    setBrandInputValue(value);
-    setFilters(prev => ({ ...prev, brand: value }));
     setCurrentPage(1);
   };
 
@@ -194,7 +129,7 @@ export default function HomePage() {
       sortBy: 'newest',
       sortOrder: 'desc'
     });
-    setBrandInputValue('');
+    // setBrandInputValue('');
     setCurrentPage(1);
   };
 

@@ -309,6 +309,8 @@ export class ProductRepository {
         reviewer: review.reviewer
       })),
       tags,
+      createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
       meta: {
         createdAt: product.createdAt,
         updatedAt: product.updatedAt,
