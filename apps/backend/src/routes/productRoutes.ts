@@ -231,4 +231,7 @@ router.put('/:id', productController.updateProduct);
  */
 router.delete('/:id', productController.deleteProduct);
 
+
+
+
 export default router;

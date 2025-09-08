@@ -35,6 +35,7 @@ export class ProductService {
       tags,
       minPrice,
       maxPrice,
+      minRating,
       minDiscount,
       maxDiscount,
       inStock,
@@ -75,6 +76,9 @@ export class ProductService {
         if (minPrice !== undefined) range.gte = minPrice;
         if (maxPrice !== undefined) range.lte = maxPrice;
         filter.push({ range: { price: range } });
+      }
+      if (minRating !== undefined) {
+        filter.push({ range: { rating: { gte: minRating } } });
       }
       if (minDiscount !== undefined || maxDiscount !== undefined) {
         const range: any = {};
@@ -277,6 +281,7 @@ export class ProductService {
       price: product.price,
       stock: product.stock,
       rating: product.rating,
+      discountPercentage: product.discountPercentage || 0,
       availabilityStatus: product.availabilityStatus
     };
 
@@ -319,6 +324,7 @@ export class ProductService {
             price: product.price,
             stock: product.stock,
             rating: product.rating,
+            discountPercentage: product.discountPercentage || 0,
             availabilityStatus: product.availabilityStatus
           }
         ]);
@@ -329,4 +335,7 @@ export class ProductService {
       console.error('Failed to initialize Elasticsearch index:', error);
     }
   }
+
+
+
 }

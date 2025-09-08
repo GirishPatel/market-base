@@ -1,4 +1,4 @@
-import { ApiResponse, User, Product, Category, CreateUserRequest, CreateProductRequest, UpdateUserRequest, UpdateProductRequest, SearchRequest, SearchResponse } from '@shared/types';
+import { ApiResponse, User, Product, Category, CreateUserRequest, CreateProductRequest, UpdateUserRequest, UpdateProductRequest, SearchResponse } from '@shared/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
@@ -14,7 +14,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -79,18 +79,61 @@ class ApiClient {
     return this.request<Category[]>('/api/categories');
   }
 
+  // Tags
+  async getTags() {
+    return this.request<{ success: boolean; data: Array<{id: number, name: string}> }>('/api/tags');
+  }
+
+  async suggestTags(query: string, size = 10) {
+    const params = new URLSearchParams({
+      q: query,
+      size: size.toString(),
+    });
+    return this.request<{ success: boolean; data: string[] }>(`/api/tags/suggest?${params}`);
+  }
+
+  // Brand suggestions
+  async suggestBrands(query: string, size = 10): Promise<ApiResponse<{ query: string; suggestions: Array<{ text: string; count: number }> }>> {
+    const urlParams = new URLSearchParams({ q: query, size: size.toString() });
+    return this.request<{ query: string; suggestions: Array<{ text: string; count: number }> }>(`/api/brands/suggest?${urlParams}`);
+  }
+
+  // Get all brands
+  async getAllBrands(size = 10): Promise<ApiResponse<{ brands: Array<{ id: number; name: string }> }>> {
+    const urlParams = new URLSearchParams({ size: size.toString() });
+    return this.request<{ brands: Array<{ id: number; name: string }> }>(`/api/brands?${urlParams}`);
+  }
+
+
   // Products
-  async getProducts(page = 1, limit = 10, category?: string) {
+  async getProducts(
+    page = 1,
+    limit = 10,
+    filters: {
+      category?: string;
+      brand?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      minRating?: number;
+      maxRating?: number;
+      availabilityStatus?: string;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+      query?: string;
+    } = {}
+  ) {
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
     });
-    
-    if (category) {
-      params.append('category', category);
-    }
 
-    return this.request<{ products: Product[]; total: number; page: number; limit: number }>(
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+
+    return this.request<any>(
       `/api/products?${params}`
     );
   }
@@ -105,7 +148,7 @@ class ApiClient {
       limit: limit.toString(),
       offset: ((page - 1) * limit).toString(),
     });
-    
+
     if (category) {
       params.append('category', category);
     }
@@ -151,6 +194,7 @@ class ApiClient {
       `/api/search?${params}`
     );
   }
+
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);

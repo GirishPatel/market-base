@@ -14,6 +14,7 @@ export class ProductController {
         tags,
         minPrice,
         maxPrice,
+        minRating,
         min_discount,
         max_discount,
         in_stock,
@@ -36,6 +37,7 @@ export class ProductController {
         tags: tags ? (Array.isArray(tags) ? tags as string[] : [tags as string]) : undefined,
         minPrice: minPrice ? parseFloat(minPrice as string) : undefined,
         maxPrice: maxPrice ? parseFloat(maxPrice as string) : undefined,
+        minRating: minRating ? parseFloat(minRating as string) : undefined,
         minDiscount: min_discount ? parseFloat(min_discount as string) : undefined,
         maxDiscount: max_discount ? parseFloat(max_discount as string) : undefined,
         inStock: in_stock === 'true' ? true : undefined,
@@ -212,4 +214,7 @@ export class ProductController {
       });
     }
   };
+
+
+
 }
